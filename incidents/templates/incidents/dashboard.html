@@ -1,0 +1,255 @@
+
+
+{% extends "incidents/base.html" %}
+
+{% block title %}Dashboard | CyberShield{% endblock %}
+
+{% block content %}
+
+<div class="toolbar">
+    <div>
+        <h1>Security Operations</h1>
+        <p class="muted">
+            Monitor, investigate and manage security incidents.
+        </p>
+    </div>
+
+    <a class="btn" href="{% url 'incident_create' %}">
+        + New Incident
+    </a>
+</div>
+
+
+<!-- Dashboard Statistics -->
+<div class="cards">
+
+    <div class="stat">
+        <p>Total Incidents</p>
+        <h2>{{ total }}</h2>
+    </div>
+
+    <div class="stat">
+        <p>Critical Alerts</p>
+        <h2 class="red">{{ critical }}</h2>
+    </div>
+
+    <div class="stat">
+        <p>Open Cases</p>
+        <h2 class="blue">{{ open_count }}</h2>
+    </div>
+
+    <div class="stat">
+        <p>Resolved Cases</p>
+        <h2 class="green">{{ resolved }}</h2>
+    </div>
+
+</div>
+
+
+<!-- Incident Register -->
+<div class="panel">
+
+    <div class="toolbar">
+        <div>
+            <h3>Incident Register</h3>
+            <p class="muted">
+                Search and filter recorded incidents.
+            </p>
+        </div>
+
+        <a href="/api/incidents/" class="btn secondary">
+            Open REST API ↗
+        </a>
+    </div>
+
+
+    <!-- Search and Filters -->
+    <form method="get" class="filters" style="margin-bottom: 22px;">
+
+        <input
+            type="search"
+            name="q"
+            value="{{ search }}"
+            placeholder="Search incidents..."
+        >
+
+        <select name="severity">
+            <option value="">All Severities</option>
+
+            <option value="Critical"
+                {% if selected_severity == "Critical" %}selected{% endif %}>
+                Critical
+            </option>
+
+            <option value="High"
+                {% if selected_severity == "High" %}selected{% endif %}>
+                High
+            </option>
+
+            <option value="Medium"
+                {% if selected_severity == "Medium" %}selected{% endif %}>
+                Medium
+            </option>
+
+            <option value="Low"
+                {% if selected_severity == "Low" %}selected{% endif %}>
+                Low
+            </option>
+        </select>
+
+
+        <select name="status">
+            <option value="">All Statuses</option>
+
+            <option value="Open"
+                {% if selected_status == "Open" %}selected{% endif %}>
+                Open
+            </option>
+
+            <option value="Investigating"
+                {% if selected_status == "Investigating" %}selected{% endif %}>
+                Investigating
+            </option>
+
+            <option value="Resolved"
+                {% if selected_status == "Resolved" %}selected{% endif %}>
+                Resolved
+            </option>
+        </select>
+
+
+        <button type="submit" class="btn">
+            Apply Filters
+        </button>
+
+        <a href="{% url 'dashboard' %}" class="btn secondary">
+            Reset
+        </a>
+
+    </form>
+
+
+    <!-- Incidents Table -->
+    <div class="table-wrap">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>INCIDENT</th>
+                    <th>TYPE</th>
+                    <th>SEVERITY</th>
+                    <th>STATUS</th>
+                    <th>CREATED</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for incident in incidents %}
+
+                <tr>
+                    <td>
+                        <strong>{{ incident.title }}</strong>
+                        <br>
+
+                        <span class="muted">
+                            {{ incident.source_ip|default:"No IP recorded" }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ incident.incident_type }}
+                    </td>
+
+                    <td>
+                        <span class="pill {{ incident.severity }}">
+                            {{ incident.severity }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ incident.status }}
+                    </td>
+
+                    <td>
+                        {{ incident.created_at|date:"d M Y, H:i" }}
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a href="{% url 'incident_edit' incident.pk %}">
+                                Edit
+                            </a>
+
+                            <form
+                                method="post"
+                                action="{% url 'incident_delete' incident.pk %}"
+                                onsubmit="return confirm('Are you sure you want to delete this incident?');"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    class="btn danger"
+                                    type="submit"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6" class="empty">
+                        No incidents found.
+                        Create your first incident!
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Severity Breakdown -->
+<div class="panel" style="margin-top: 20px;">
+
+    <h3>Severity Breakdown</h3>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+
+        {% for item in severity_data %}
+
+        <div>
+            <span class="pill {{ item.severity }}">
+                {{ item.severity }}
+            </span>
+
+            <strong style="margin-left: 7px;">
+                {{ item.count }}
+            </strong>
+        </div>
+
+        {% empty %}
+
+        <p class="muted">
+            No incident data available yet.
+        </p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

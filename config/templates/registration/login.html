@@ -1,0 +1,48 @@
+
+{% extends "incidents/base.html" %}
+{% block title %}Login | CyberShield{% endblock %}
+
+{% block content %}
+<div style="max-width: 430px; margin: 55px auto;">
+    <div class="panel">
+        <div style="text-align:center; margin-bottom:25px;">
+            <div style="font-size:38px;">◈</div>
+            <h1>Welcome Back</h1>
+            <p class="muted">Sign in to CyberShield</p>
+        </div>
+
+        {% if form.errors %}
+            <p style="color:#fda4af;">
+                Username or password is incorrect. Please try again.
+            </p>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+                <p class="muted">Your account cannot access that page.</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+            <div class="field">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username"
+                       autocomplete="username" required autofocus>
+            </div>
+
+            <div class="field">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password"
+                       autocomplete="current-password" required>
+            </div>
+
+            <button class="btn" type="submit" style="width:100%;">
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

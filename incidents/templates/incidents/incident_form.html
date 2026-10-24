@@ -1,0 +1,37 @@
+
+{% extends "incidents/base.html" %}
+{% block title %}{{ heading }} | CyberShield{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: auto;">
+    <a href="{% url 'dashboard' %}">← Back to dashboard</a>
+    <h1 style="margin-top: 25px;">{{ heading }}</h1>
+    <p class="muted">Enter the security incident details below.</p>
+
+    <div class="panel" style="margin-top: 25px;">
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="muted">{{ field.help_text }}</small>
+                {% endif %}
+                {{ field.errors }}
+            </div>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+            {% endif %}
+
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" class="btn">Save Incident</button>
+                <a href="{% url 'dashboard' %}" class="btn secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
