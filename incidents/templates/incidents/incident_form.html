@@ -1,14 +1,16 @@
-
 {% extends "incidents/base.html" %}
 {% block title %}{{ heading }} | CyberShield{% endblock %}
 
 {% block content %}
-<div style="max-width: 760px; margin: auto;">
-    <a href="{% url 'dashboard' %}">← Back to dashboard</a>
-    <h1 style="margin-top: 25px;">{{ heading }}</h1>
-    <p class="muted">Enter the security incident details below.</p>
+<div style="max-width: 680px; margin: 10px auto;">
+    <a href="{% url 'dashboard' %}" class="muted" style="display: inline-flex; align-items: center; gap: 4px; margin-bottom: 16px;">
+        ← Back to Dashboard
+    </a>
 
-    <div class="panel" style="margin-top: 25px;">
+    <div class="panel">
+        <h1 style="font-size: 22px;">{{ heading }}</h1>
+        <p class="muted" style="margin-bottom: 20px;">Provide complete metadata and telemetry for this security event.</p>
+
         <form method="post" class="form-grid">
             {% csrf_token %}
 
@@ -17,18 +19,20 @@
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
                 {% if field.help_text %}
-                    <small class="muted">{{ field.help_text }}</small>
+                    <small class="muted" style="display:block; margin-top:4px;">{{ field.help_text }}</small>
                 {% endif %}
                 {{ field.errors }}
             </div>
             {% endfor %}
 
             {% if form.non_field_errors %}
-                {{ form.non_field_errors }}
+                <div class="alert" style="background:#450a0a; color:#fca5a5; border-color:#991b1b;">
+                    {{ form.non_field_errors }}
+                </div>
             {% endif %}
 
-            <div style="display:flex; gap:10px; margin-top:8px;">
-                <button type="submit" class="btn">Save Incident</button>
+            <div style="display:flex; gap:10px; margin-top:12px; padding-top:14px; border-top:1px solid #1f293d;">
+                <button type="submit" class="btn">💾 Save Incident</button>
                 <a href="{% url 'dashboard' %}" class="btn secondary">Cancel</a>
             </div>
         </form>

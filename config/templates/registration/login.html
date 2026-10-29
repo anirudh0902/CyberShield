@@ -1,25 +1,26 @@
-
 {% extends "incidents/base.html" %}
-{% block title %}Login | CyberShield{% endblock %}
+{% block title %}Sign In | CyberShield SOC{% endblock %}
 
 {% block content %}
-<div style="max-width: 430px; margin: 55px auto;">
-    <div class="panel">
-        <div style="text-align:center; margin-bottom:25px;">
-            <div style="font-size:38px;">◈</div>
-            <h1>Welcome Back</h1>
-            <p class="muted">Sign in to CyberShield</p>
+<div style="max-width: 420px; margin: 45px auto;">
+    <div class="panel" style="padding: 28px 24px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="font-size: 32px; margin-bottom: 6px;">🛡️</div>
+            <h1 style="font-size: 22px;">CyberShield Portal</h1>
+            <p class="muted">Security Operations & Incident Center</p>
         </div>
 
         {% if form.errors %}
-            <p style="color:#fda4af;">
-                Username or password is incorrect. Please try again.
-            </p>
+            <div class="alert" style="background:#450a0a; color:#fca5a5; border-color:#991b1b; padding:10px 14px; margin-bottom:18px;">
+                Invalid username or password. Please try again.
+            </div>
         {% endif %}
 
         {% if next %}
             {% if user.is_authenticated %}
-                <p class="muted">Your account cannot access that page.</p>
+                <p class="muted" style="text-align:center; margin-bottom:14px; color:#fca5a5;">
+                    Your account is not authorized to view that page.
+                </p>
             {% endif %}
         {% endif %}
 
@@ -30,17 +31,17 @@
             <div class="field">
                 <label for="id_username">Username</label>
                 <input type="text" name="username" id="id_username"
-                       autocomplete="username" required autofocus>
+                       autocomplete="username" placeholder="Enter username" required autofocus>
             </div>
 
             <div class="field">
                 <label for="id_password">Password</label>
                 <input type="password" name="password" id="id_password"
-                       autocomplete="current-password" required>
+                       autocomplete="current-password" placeholder="••••••••" required>
             </div>
 
-            <button class="btn" type="submit" style="width:100%;">
-                Sign In
+            <button class="btn" type="submit" style="width: 100%; justify-content: center; padding: 11px; margin-top: 6px;">
+                Authenticate & Enter →
             </button>
         </form>
     </div>

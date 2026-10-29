@@ -1,0 +1,122 @@
+{% extends "incidents/base.html" %}
+
+{% block title %}Threat Detection | CyberShield{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+    <div>
+        <h1>Threat Detection Engine</h1>
+        <p class="muted">Scan raw logs, network payloads, or suspicious activity against active detection rules.</p>
+    </div>
+    <div class="btn-group">
+        <a class="btn secondary" href="{% url 'dashboard' %}">← Dashboard</a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;">
+    <!-- Scanner Form & Results -->
+    <div>
+        <div class="panel">
+            <h3>Scan Suspicious Activity</h3>
+            <p class="muted" style="margin-bottom: 16px;">Enter raw log line, query string, or payload to test against rules.</p>
+
+            <form method="post" class="form-grid">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="log_text">Activity / Payload / Log String</label>
+                    <textarea
+                        name="log_text"
+                        id="log_text"
+                        rows="4"
+                        placeholder="e.g. 192.168.1.50 - - [POST /login] 401: failed login attempt; user admin password spraying"
+                        required
+                    >{{ log_text }}</textarea>
+                </div>
+
+                <div class="field">
+                    <label for="source_ip">Source IP (Optional)</label>
+                    <input
+                        type="text"
+                        name="source_ip"
+                        id="source_ip"
+                        value="{{ source_ip }}"
+                        placeholder="e.g. 192.168.1.50"
+                    >
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" name="action" value="scan" class="btn">
+                        🔍 Run Detection Rules
+                    </button>
+                    {% if log_text %}
+                        <a href="{% url 'threat_detection' %}" class="btn secondary">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        {% if log_text %}
+            <div class="panel" style="margin-top: 20px;">
+                {% if matches %}
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="color: #f87171;">⚠️ Threat Detected ({{ matches|length }} Rule Matched)</h3>
+                            <p class="muted">Suspicious signatures matched against defined detection policies.</p>
+                        </div>
+
+                        <!-- 1-Click Convert Threat to Incident -->
+                        <form method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="log_text" value="{{ log_text }}">
+                            <input type="hidden" name="source_ip" value="{{ source_ip }}">
+                            <button type="submit" name="action" value="create_incident" class="btn danger">
+                                🚨 Convert to Incident & Assign to Me
+                            </button>
+                        </form>
+                    </div>
+
+                    {% for match in matches %}
+                    <div style="background: #1e111a; border: 1px solid #7f1d35; border-radius: 8px; padding: 14px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>{{ match.name }} <span class="muted" style="font-size: 11px;">({{ match.rule_id }})</span></strong>
+                            <span class="pill {{ match.severity }}">● {{ match.severity }}</span>
+                        </div>
+                        <p class="muted" style="margin: 6px 0;">{{ match.description }}</p>
+                        <div style="font-family: monospace; font-size: 12px; background: #0b0f19; padding: 6px 10px; border-radius: 4px; color: #fca5a5; margin-top: 6px;">
+                            Matched Indicator: <code>{{ match.matched_text }}</code>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                {% else %}
+                    <div style="text-align: center; padding: 25px 0;">
+                        <div style="font-size: 28px; margin-bottom: 6px;">🛡️</div>
+                        <h3 style="color: #34d399;">Clean / No Known Threat Detected</h3>
+                        <p class="muted">The scanned text did not trigger any active detection rules.</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Active Detection Rules Reference -->
+    <div class="panel">
+        <h3>Active Detection Rules</h3>
+        <p class="muted" style="margin-bottom: 14px;">Built-in heuristic rules</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for r in rules %}
+            <div style="background: #0d1526; border: 1px solid #1f293d; padding: 10px 12px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <strong style="font-size: 12px;">{{ r.name }}</strong>
+                    <span class="pill {{ r.severity }}" style="font-size: 10px;">{{ r.severity }}</span>
+                </div>
+                <div class="muted" style="font-size: 11px;">{{ r.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
